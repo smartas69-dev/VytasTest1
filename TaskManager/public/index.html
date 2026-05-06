@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskManager - CRUD Application</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-edit {
+            background: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        .btn-edit:hover {
+            background: #45a049;
+        }
+
+        .btn-delete {
+            background: #f44336;
+            color: white;
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        .btn-delete:hover {
+            background: #da190b;
+        }
+
+        .btn-cancel {
+            background: #9e9e9e;
+            color: white;
+            padding: 8px 16px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .btn-cancel:hover {
+            background: #757575;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tasks-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .task-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s;
+        }
+
+        .task-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .task-item.status-pending {
+            border-left-color: #ff9800;
+        }
+
+        .task-item.status-in-progress {
+            border-left-color: #2196F3;
+        }
+
+        .task-item.status-completed {
+            border-left-color: #4CAF50;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .task-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+        }
+
+        .task-status {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-left: 10px;
+        }
+
+        .task-status.pending {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .task-status.in-progress {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .task-status.completed {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .task-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
+            z-index: 1000;
+        }
+
+        .notification.success {
+            background: #4CAF50;
+        }
+
+        .notification.error {
+            background: #f44336;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 2em;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📋 TaskManager</h1>
+            <p>Organize your tasks efficiently</p>
+        </header>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalTasks">0</div>
+                <div class="stat-label">Total Tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingTasks">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="inProgressTasks">0</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completedTasks">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2 id="formTitle">➕ Add New Task</h2>
+                <form id="taskForm">
+                    <input type="hidden" id="taskId">
+                    <div class="form-group">
+                        <label for="title">Title *</label>
+                        <input type="text" id="title" required placeholder="Enter task title">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" placeholder="Enter task description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status">
+                            <option value="pending">Pending</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">Add Task</button>
+                    <button type="button" class="btn btn-cancel" id="cancelBtn" style="display: none; width: 100%; margin-top: 10px;">Cancel</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>📝 Tasks</h2>
+                <div class="filter-section">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="pending">Pending</button>
+                    <button class="filter-btn" data-filter="in-progress">In Progress</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                </div>
+                <div class="tasks-list" id="tasksList">
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        <h3>No tasks yet</h3>
+                        <p>Create your first task to get started!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/tasks';
+        let currentFilter = 'all';
+        let editingTaskId = null;
+
+        // DOM Elements
+        const taskForm = document.getElementById('taskForm');
+        const tasksList = document.getElementById('tasksList');
+        const titleInput = document.getElementById('title');
+        const descriptionInput = document.getElementById('description');
+        const statusSelect = document.getElementById('status');
+        const taskIdInput = document.getElementById('taskId');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const formTitle = document.getElementById('formTitle');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+
+        // Initialize
+        loadTasks();
+
+        // Event Listeners
+        taskForm.addEventListener('submit', handleSubmit);
+        cancelBtn.addEventListener('click', resetForm);
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                loadTasks();
+            });
+        });
+
+        // Load tasks
+        async function loadTasks() {
+            try {
+                const url = currentFilter === 'all' ? API_URL : `${API_URL}?status=${currentFilter}`;
+                const response = await fetch(url);
+                const tasks = await response.json();
+                renderTasks(tasks);
+                updateStats(tasks);
+            } catch (error) {
+                showNotification('Error loading tasks', 'error');
+            }
+        }
+
+        // Render tasks
+        function renderTasks(tasks) {
+            if (tasks.length === 0) {
+                tasksList.innerHTML = `
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        <h3>No tasks found</h3>
+                        <p>${currentFilter === 'all' ? 'Create your first task to get started!' : `No ${currentFilter} tasks`}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            tasksList.innerHTML = tasks.map(task => `
+                <div class="task-item status-${task.status}">
+                    <div class="task-header">
+                        <div class="task-title">${escapeHtml(task.title)}</div>
+                        <span class="task-status ${task.status}">${task.status.replace('-', ' ')}</span>
+                    </div>
+                    ${task.description ? `<div class="task-description">${escapeHtml(task.description)}</div>` : ''}
+                    <div class="task-meta">
+                        <span>Created: ${formatDate(task.createdAt)}</span>
+                        <span>Updated: ${formatDate(task.updatedAt)}</span>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn btn-edit" onclick="editTask(${task.id})">Edit</button>
+                        <button class="btn btn-delete" onclick="deleteTask(${task.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update statistics
+        async function updateStats(tasks = null) {
+            if (!tasks) {
+                const response = await fetch(API_URL);
+                tasks = await response.json();
+            }
+            
+            document.getElementById('totalTasks').textContent = tasks.length;
+            document.getElementById('pendingTasks').textContent = tasks.filter(t => t.status === 'pending').length;
+            document.getElementById('inProgressTasks').textContent = tasks.filter(t => t.status === 'in-progress').length;
+            document.getElementById('completedTasks').textContent = tasks.filter(t => t.status === 'completed').length;
+        }
+
+        // Handle form submit
+        async function handleSubmit(e) {
+            e.preventDefault();
+            
+            const taskData = {
+                title: titleInput.value.trim(),
+                description: descriptionInput.value.trim(),
+                status: statusSelect.value
+            };
+
+            try {
+                if (editingTaskId) {
+                    await fetch(`${API_URL}/${editingTaskId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(taskData)
+                    });
+                    showNotification('Task updated successfully!', 'success');
+                } else {
+                    await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(taskData)
+                    });
+                    showNotification('Task created successfully!', 'success');
+                }
+                
+                resetForm();
+                loadTasks();
+            } catch (error) {
+                showNotification('Error saving task', 'error');
+            }
+        }
+
+        // Edit task
+        async function editTask(id) {
+            try {
+                const response = await fetch(`${API_URL}/${id}`);
+                const task = await response.json();
+                
+                editingTaskId = id;
+                titleInput.value = task.title;
+                descriptionInput.value = task.description;
+                statusSelect.value = task.status;
+                
+                formTitle.textContent = '✏️ Edit Task';
+                submitBtn.textContent = 'Update Task';
+                cancelBtn.style.display = 'block';
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (error) {
+                showNotification('Error loading task', 'error');
+            }
+        }
+
+        // Delete task
+        async function deleteTask(id) {
+            if (!confirm('Are you sure you want to delete this task?')) return;
+            
+            try {
+                await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                showNotification('Task deleted successfully!', 'success');
+                loadTasks();
+            } catch (error) {
+                showNotification('Error deleting task', 'error');
+            }
+        }
+
+        // Reset form
+        function resetForm() {
+            taskForm.reset();
+            editingTaskId = null;
+            formTitle.textContent = '➕ Add New Task';
+            submitBtn.textContent = 'Add Task';
+            cancelBtn.style.display = 'none';
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Utility functions
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+    </script>
+</body>
+</html>
