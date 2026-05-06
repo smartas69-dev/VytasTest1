@@ -221,6 +221,11 @@
             flex: 1;
         }
 
+        .task-title.completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+
         .task-status {
             padding: 5px 12px;
             border-radius: 15px;
@@ -488,7 +493,7 @@
             tasksList.innerHTML = tasks.map(task => `
                 <div class="task-item status-${task.status}">
                     <div class="task-header">
-                        <div class="task-title">${escapeHtml(task.title)}</div>
+                        <div class="task-title ${task.status === 'completed' ? 'completed' : ''}">${escapeHtml(task.title)}</div>
                         <span class="task-status ${task.status}">${task.status.replace('-', ' ')}</span>
                     </div>
                     ${task.description ? `<div class="task-description">${escapeHtml(task.description)}</div>` : ''}
