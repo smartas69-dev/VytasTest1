@@ -1,0 +1,137 @@
+### Todo API Test Examples
+### Use with REST Client extension in VS Code or copy to Postman/Insomnia
+
+@baseUrl = http://localhost:3000
+
+### Get API Documentation
+GET {{baseUrl}}/
+
+###
+
+### Create a new todo
+POST {{baseUrl}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "Buy groceries",
+  "description": "Milk, eggs, bread, vegetables",
+  "completed": false
+}
+
+###
+
+### Create another todo
+POST {{baseUrl}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "Finish project report",
+  "description": "Complete the Q2 analysis report",
+  "completed": false
+}
+
+###
+
+### Create a third todo
+POST {{baseUrl}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "Call dentist",
+  "description": "Schedule appointment for next week"
+}
+
+###
+
+### Get all todos
+GET {{baseUrl}}/api/todos
+
+###
+
+### Get a specific todo (replace :id with actual ID, e.g., 1)
+GET {{baseUrl}}/api/todos/1
+
+###
+
+### Get only completed todos
+GET {{baseUrl}}/api/todos?completed=true
+
+###
+
+### Get only incomplete todos
+GET {{baseUrl}}/api/todos?completed=false
+
+###
+
+### Update a todo (full update)
+PUT {{baseUrl}}/api/todos/1
+Content-Type: application/json
+
+{
+  "title": "Buy groceries and cook dinner",
+  "description": "Milk, eggs, bread, vegetables, chicken",
+  "completed": true
+}
+
+###
+
+### Partially update a todo (mark as completed)
+PATCH {{baseUrl}}/api/todos/2
+Content-Type: application/json
+
+{
+  "completed": true
+}
+
+###
+
+### Partially update a todo (update title only)
+PATCH {{baseUrl}}/api/todos/3
+Content-Type: application/json
+
+{
+  "title": "Call dentist - URGENT"
+}
+
+###
+
+### Delete a specific todo
+DELETE {{baseUrl}}/api/todos/1
+
+###
+
+### Delete all todos
+DELETE {{baseUrl}}/api/todos
+
+###
+
+### Test validation - empty title (should return 400)
+POST {{baseUrl}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "",
+  "description": "This should fail"
+}
+
+###
+
+### Test validation - missing title (should return 400)
+POST {{baseUrl}}/api/todos
+Content-Type: application/json
+
+{
+  "description": "This should fail"
+}
+
+###
+
+### Test 404 - non-existent todo
+GET {{baseUrl}}/api/todos/999
+
+###
+
+### Test 404 - invalid endpoint
+GET {{baseUrl}}/api/invalid-endpoint
+
+###
