@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskManager2 - Task Management Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📋 TaskManager2</h1>
+            <p class="subtitle">Manage your tasks efficiently</p>
+        </header>
+
+        <!-- Add Task Form -->
+        <section class="add-task-section">
+            <h2>Add New Task</h2>
+            <form id="taskForm">
+                <div class="form-group">
+                    <label for="title">Title *</label>
+                    <input type="text" id="title" name="title" required maxlength="100" placeholder="Enter task title">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" maxlength="500" rows="3" placeholder="Enter task description"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status" name="status">
+                            <option value="pending">Pending</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="priority">Priority</label>
+                        <select id="priority" name="priority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dueDate">Due Date</label>
+                        <input type="date" id="dueDate" name="dueDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="assignedTo">Assigned To</label>
+                        <input type="text" id="assignedTo" name="assignedTo" maxlength="100" placeholder="Enter team member name">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Add Task</button>
+                    <button type="reset" class="btn btn-secondary">Clear</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Filter and Search -->
+        <section class="filter-section">
+            <h2>Tasks</h2>
+            <div class="filter-controls">
+                <input type="text" id="searchInput" placeholder="Search tasks..." class="search-input">
+                <select id="filterStatus" class="filter-select">
+                    <option value="all">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                </select>
+                <select id="filterPriority" class="filter-select">
+                    <option value="all">All Priorities</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                </select>
+                <button id="refreshBtn" class="btn btn-secondary">🔄 Refresh</button>
+            </div>
+        </section>
+
+        <!-- Tasks List -->
+        <section class="tasks-section">
+            <div id="tasksContainer" class="tasks-container">
+                <div class="loading">Loading tasks...</div>
+            </div>
+        </section>
+
+        <!-- Edit Modal -->
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Edit Task</h2>
+                <form id="editTaskForm">
+                    <input type="hidden" id="editTaskId">
+                    
+                    <div class="form-group">
+                        <label for="editTitle">Title *</label>
+                        <input type="text" id="editTitle" name="title" required maxlength="100">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editDescription">Description</label>
+                        <textarea id="editDescription" name="description" maxlength="500" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editStatus">Status</label>
+                            <select id="editStatus" name="status">
+                                <option value="pending">Pending</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editPriority">Priority</label>
+                            <select id="editPriority" name="priority">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editDueDate">Due Date</label>
+                            <input type="date" id="editDueDate" name="dueDate">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editAssignedTo">Assigned To</label>
+                            <input type="text" id="editAssignedTo" name="assignedTo" maxlength="100" placeholder="Enter team member name">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Update Task</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
