@@ -74,6 +74,7 @@
         }
 
         input[type="text"],
+        input[type="date"],
         textarea,
         select {
             width: 100%;
@@ -85,6 +86,7 @@
         }
 
         input[type="text"]:focus,
+        input[type="date"]:focus,
         textarea:focus,
         select:focus {
             outline: none;
@@ -404,6 +406,22 @@
                             <option value="completed">Completed</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="priority">Priority</label>
+                        <select id="priority">
+                            <option value="Low">Low</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dueDate">Due Date</label>
+                        <input type="date" id="dueDate" placeholder="Select due date">
+                    </div>
+                    <div class="form-group">
+                        <label for="owner">Owner</label>
+                        <input type="text" id="owner" placeholder="Enter task owner">
+                    </div>
                     <button type="submit" class="btn btn-primary" id="submitBtn">Add Task</button>
                     <button type="button" class="btn btn-cancel" id="cancelBtn" style="display: none; width: 100%; margin-top: 10px;">Cancel</button>
                 </form>
@@ -441,6 +459,9 @@
         const titleInput = document.getElementById('title');
         const descriptionInput = document.getElementById('description');
         const statusSelect = document.getElementById('status');
+        const prioritySelect = document.getElementById('priority');
+        const dueDateInput = document.getElementById('dueDate');
+        const ownerInput = document.getElementById('owner');
         const taskIdInput = document.getElementById('taskId');
         const submitBtn = document.getElementById('submitBtn');
         const cancelBtn = document.getElementById('cancelBtn');
@@ -498,6 +519,11 @@
                     </div>
                     ${task.description ? `<div class="task-description">${escapeHtml(task.description)}</div>` : ''}
                     <div class="task-meta">
+                        <span><strong>Priority:</strong> <span style="color: ${getPriorityColor(task.priority)}">${task.priority}</span></span>
+                        ${task.dueDate ? `<span><strong>Due:</strong> ${formatDate(task.dueDate)}</span>` : ''}
+                        ${task.owner ? `<span><strong>Owner:</strong> ${escapeHtml(task.owner)}</span>` : ''}
+                    </div>
+                    <div class="task-meta">
                         <span>Created: ${formatDate(task.createdAt)}</span>
                         <span>Updated: ${formatDate(task.updatedAt)}</span>
                     </div>
@@ -529,7 +555,10 @@
             const taskData = {
                 title: titleInput.value.trim(),
                 description: descriptionInput.value.trim(),
-                status: statusSelect.value
+                status: statusSelect.value,
+                priority: prioritySelect.value,
+                dueDate: dueDateInput.value || null,
+                owner: ownerInput.value.trim()
             };
 
             try {
@@ -566,6 +595,9 @@
                 titleInput.value = task.title;
                 descriptionInput.value = task.description;
                 statusSelect.value = task.status;
+                prioritySelect.value = task.priority || 'Medium';
+                dueDateInput.value = task.dueDate ? task.dueDate.split('T')[0] : '';
+                ownerInput.value = task.owner || '';
                 
                 formTitle.textContent = '✏️ Edit Task';
                 submitBtn.textContent = 'Update Task';
@@ -627,6 +659,15 @@
                 hour: '2-digit',
                 minute: '2-digit'
             });
+        }
+
+        function getPriorityColor(priority) {
+            switch(priority) {
+                case 'High': return '#f44336';
+                case 'Medium': return '#ff9800';
+                case 'Low': return '#4CAF50';
+                default: return '#999';
+            }
         }
     </script>
 </body>

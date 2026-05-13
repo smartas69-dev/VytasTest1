@@ -15,7 +15,7 @@ let nextId = 1;
 
 // Validation middleware
 const validateTask = (req, res, next) => {
-  const { title, description, status } = req.body;
+  const { title, description, status, priority, dueDate, owner } = req.body;
   
   if (!title || typeof title !== 'string' || title.trim() === '') {
     return res.status(400).json({ error: 'Title is required and must be a non-empty string' });
@@ -29,18 +29,33 @@ const validateTask = (req, res, next) => {
     return res.status(400).json({ error: 'Status must be one of: pending, in-progress, completed' });
   }
   
+  if (priority !== undefined && !['Low', 'Medium', 'High'].includes(priority)) {
+    return res.status(400).json({ error: 'Priority must be one of: Low, Medium, High' });
+  }
+  
+  if (dueDate !== undefined && dueDate !== '' && isNaN(Date.parse(dueDate))) {
+    return res.status(400).json({ error: 'Due date must be a valid date' });
+  }
+  
+  if (owner !== undefined && typeof owner !== 'string') {
+    return res.status(400).json({ error: 'Owner must be a string' });
+  }
+  
   next();
 };
 
 // CREATE - Add a new task
 app.post('/tasks', validateTask, (req, res) => {
-  const { title, description, status } = req.body;
+  const { title, description, status, priority, dueDate, owner } = req.body;
   
   const newTask = {
     id: nextId++,
     title: title.trim(),
     description: description ? description.trim() : '',
     status: status || 'pending',
+    priority: priority || 'Medium',
+    dueDate: dueDate || null,
+    owner: owner ? owner.trim() : '',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
@@ -92,13 +107,16 @@ app.put('/tasks/:id', validateTask, (req, res) => {
     return res.status(404).json({ error: 'Task not found' });
   }
   
-  const { title, description, status } = req.body;
+  const { title, description, status, priority, dueDate, owner } = req.body;
   
   tasks[taskIndex] = {
     ...tasks[taskIndex],
     title: title.trim(),
     description: description ? description.trim() : tasks[taskIndex].description,
     status: status || tasks[taskIndex].status,
+    priority: priority || tasks[taskIndex].priority,
+    dueDate: dueDate !== undefined ? dueDate : tasks[taskIndex].dueDate,
+    owner: owner !== undefined ? owner.trim() : tasks[taskIndex].owner,
     updatedAt: new Date().toISOString()
   };
   
@@ -119,7 +137,7 @@ app.patch('/tasks/:id', (req, res) => {
     return res.status(404).json({ error: 'Task not found' });
   }
   
-  const { title, description, status } = req.body;
+  const { title, description, status, priority, dueDate, owner } = req.body;
   
   // Validate only provided fields
   if (title !== undefined && (typeof title !== 'string' || title.trim() === '')) {
@@ -134,10 +152,25 @@ app.patch('/tasks/:id', (req, res) => {
     return res.status(400).json({ error: 'Status must be one of: pending, in-progress, completed' });
   }
   
+  if (priority !== undefined && !['Low', 'Medium', 'High'].includes(priority)) {
+    return res.status(400).json({ error: 'Priority must be one of: Low, Medium, High' });
+  }
+  
+  if (dueDate !== undefined && dueDate !== '' && dueDate !== null && isNaN(Date.parse(dueDate))) {
+    return res.status(400).json({ error: 'Due date must be a valid date' });
+  }
+  
+  if (owner !== undefined && typeof owner !== 'string') {
+    return res.status(400).json({ error: 'Owner must be a string' });
+  }
+  
   // Update only provided fields
   if (title !== undefined) tasks[taskIndex].title = title.trim();
   if (description !== undefined) tasks[taskIndex].description = description.trim();
   if (status !== undefined) tasks[taskIndex].status = status;
+  if (priority !== undefined) tasks[taskIndex].priority = priority;
+  if (dueDate !== undefined) tasks[taskIndex].dueDate = dueDate;
+  if (owner !== undefined) tasks[taskIndex].owner = owner.trim();
   tasks[taskIndex].updatedAt = new Date().toISOString();
   
   res.json(tasks[taskIndex]);
