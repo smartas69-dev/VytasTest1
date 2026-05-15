@@ -21,8 +21,10 @@ import {
   Dashboard as DashboardIcon,
   ShoppingCart as OrderIcon,
   AdminPanelSettings as AdminIcon,
+  People as PeopleIcon,
 } from '@mui/icons-material';
 import AdminPage from './pages/AdminPage';
+import CustomersPage from './pages/CustomersPage';
 
 // Create theme
 const theme = createTheme({
@@ -131,6 +133,9 @@ function App() {
               <Button color="inherit" component={Link} to="/orders">
                 Orders
               </Button>
+              <Button color="inherit" component={Link} to="/customers">
+                Customers
+              </Button>
               <Button color="inherit" component={Link} to="/admin">
                 Admin
               </Button>
@@ -148,6 +153,7 @@ function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/orders" element={<OrdersPage />} />
+              <Route path="/customers" element={<CustomersPage />} />
               <Route path="/admin" element={<AdminPage />} />
               <Route path="/fleet" element={<FleetPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
