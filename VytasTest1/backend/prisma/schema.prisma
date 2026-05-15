@@ -1,0 +1,251 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model DeliveryZone {
+  id               String     @id @default(uuid()) @db.Uuid
+  name             String
+  code             String     @unique
+  polygon          String?
+  maxDailyCapacity Int        @default(100)
+  isActive         Boolean    @default(true)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  timeSlots        TimeSlot[]
+  orders           Order[]
+}
+
+model TimeSlot {
+  id                String        @id @default(uuid()) @db.Uuid
+  zoneId            String        @db.Uuid
+  date              DateTime      @db.Date
+  startTime         DateTime      @db.Time(0)
+  endTime           DateTime      @db.Time(0)
+  totalCapacity     Int
+  availableCapacity Int
+  priceMultiplier   Decimal       @default(1.0) @db.Decimal(4, 2)
+  status            String        @default("active")
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  zone              DeliveryZone  @relation(fields: [zoneId], references: [id])
+  orders            Order[]
+  truckLoads        TruckLoad[]
+  reservations      Reservation[]
+
+  @@unique([zoneId, date, startTime])
+  @@map("time_slots")
+}
+
+model InventoryItem {
+  id                     String                 @id @default(uuid()) @db.Uuid
+  sku                    String                 @unique
+  name                   String
+  description            String?
+  category               String?
+  weightKg               Decimal                @db.Decimal(10, 2)
+  volumeM3               Decimal                @db.Decimal(10, 4)
+  dimensionsCm           String?
+  isFragile              Boolean                @default(false)
+  requiresRefrigeration  Boolean                @default(false)
+  stockQuantity          Int                    @default(0)
+  reservedQuantity       Int                    @default(0)
+  unitPrice              Decimal?               @db.Decimal(10, 2)
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
+  orderItems             OrderItem[]
+  inventoryTransactions  InventoryTransaction[]
+
+  @@map("inventory_items")
+}
+
+model Warehouse {
+  id                    String                 @id @default(uuid()) @db.Uuid
+  name                  String
+  address               String
+  coordinates           String
+  totalCapacityM3       Decimal                @db.Decimal(10, 2)
+  usedCapacityM3        Decimal                @default(0) @db.Decimal(10, 2)
+  isActive              Boolean                @default(true)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  trucks                Truck[]
+  inventoryTransactions InventoryTransaction[]
+
+  @@map("warehouses")
+}
+
+model Truck {
+  id                 String      @id @default(uuid()) @db.Uuid
+  registrationNumber String      @unique
+  type               String
+  maxWeightKg        Decimal     @db.Decimal(10, 2)
+  maxVolumeM3        Decimal     @db.Decimal(10, 2)
+  currentWeightKg    Decimal     @default(0) @db.Decimal(10, 2)
+  currentVolumeM3    Decimal     @default(0) @db.Decimal(10, 2)
+  fuelType           String?
+  status             String      @default("available")
+  currentLocation    String?
+  warehouseId        String?     @db.Uuid
+  hasRefrigeration   Boolean     @default(false)
+  hasLiftGate        Boolean     @default(false)
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  warehouse          Warehouse?  @relation(fields: [warehouseId], references: [id])
+  drivers            Driver[]
+  truckLoads         TruckLoad[]
+
+  @@map("trucks")
+}
+
+model Driver {
+  id              String      @id @default(uuid()) @db.Uuid
+  employeeId      String      @unique
+  firstName       String
+  lastName        String
+  email           String      @unique
+  phone           String?
+  licenseNumber   String
+  licenseExpiry   DateTime    @db.Date
+  status          String      @default("available")
+  currentTruckId  String?     @db.Uuid
+  shiftStart      DateTime?   @db.Time(0)
+  shiftEnd        DateTime?   @db.Time(0)
+  maxHoursPerDay  Int         @default(8)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  currentTruck    Truck?      @relation(fields: [currentTruckId], references: [id])
+  truckLoads      TruckLoad[]
+
+  @@map("drivers")
+}
+
+model Customer {
+  id                 String    @id @default(uuid()) @db.Uuid
+  email              String    @unique
+  firstName          String
+  lastName           String
+  phone              String?
+  defaultAddress     String?
+  defaultCoordinates String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  orders             Order[]
+
+  @@map("customers")
+}
+
+model Order {
+  id                       String         @id @default(uuid()) @db.Uuid
+  orderNumber              String         @unique
+  customerId               String?        @db.Uuid
+  slotId                   String?        @db.Uuid
+  deliveryAddress          String
+  deliveryCoordinates      String
+  zoneId                   String?        @db.Uuid
+  status                   String         @default("pending")
+  priority                 Int            @default(0)
+  totalWeightKg            Decimal?       @db.Decimal(10, 2)
+  totalVolumeM3            Decimal?       @db.Decimal(10, 4)
+  estimatedDurationMinutes Int?
+  specialInstructions      String?
+  requiresSignature        Boolean        @default(false)
+  createdAt                DateTime       @default(now())
+  updatedAt                DateTime       @updatedAt
+  customer                 Customer?      @relation(fields: [customerId], references: [id])
+  slot                     TimeSlot?      @relation(fields: [slotId], references: [id])
+  zone                     DeliveryZone?  @relation(fields: [zoneId], references: [id])
+  orderItems               OrderItem[]
+  loadItems                LoadItem[]
+  reservations             Reservation[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id              String         @id @default(uuid()) @db.Uuid
+  orderId         String         @db.Uuid
+  inventoryItemId String         @db.Uuid
+  quantity        Int
+  unitPrice       Decimal?       @db.Decimal(10, 2)
+  totalPrice      Decimal?       @db.Decimal(10, 2)
+  createdAt       DateTime       @default(now())
+  order           Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  inventoryItem   InventoryItem  @relation(fields: [inventoryItemId], references: [id])
+
+  @@map("order_items")
+}
+
+model TruckLoad {
+  id                       String      @id @default(uuid()) @db.Uuid
+  truckId                  String?     @db.Uuid
+  driverId                 String?     @db.Uuid
+  slotId                   String?     @db.Uuid
+  status                   String      @default("planning")
+  totalWeightKg            Decimal?    @db.Decimal(10, 2)
+  totalVolumeM3            Decimal?    @db.Decimal(10, 4)
+  orderCount               Int?
+  plannedRoute             Json?
+  actualRoute              Json?
+  estimatedDistanceKm      Decimal?    @db.Decimal(10, 2)
+  estimatedDurationMinutes Int?
+  actualDistanceKm         Decimal?    @db.Decimal(10, 2)
+  actualDurationMinutes    Int?
+  startedAt                DateTime?
+  completedAt              DateTime?
+  createdAt                DateTime    @default(now())
+  updatedAt                DateTime    @updatedAt
+  truck                    Truck?      @relation(fields: [truckId], references: [id])
+  driver                   Driver?     @relation(fields: [driverId], references: [id])
+  slot                     TimeSlot?   @relation(fields: [slotId], references: [id])
+  loadItems                LoadItem[]
+
+  @@map("truck_loads")
+}
+
+model LoadItem {
+  id             String      @id @default(uuid()) @db.Uuid
+  loadId         String      @db.Uuid
+  orderId        String      @db.Uuid
+  sequenceNumber Int
+  loadedAt       DateTime?
+  deliveredAt    DateTime?
+  createdAt      DateTime    @default(now())
+  load           TruckLoad   @relation(fields: [loadId], references: [id], onDelete: Cascade)
+  order          Order       @relation(fields: [orderId], references: [id])
+
+  @@map("load_items")
+}
+
+model Reservation {
+  id        String     @id @default(uuid()) @db.Uuid
+  slotId    String?    @db.Uuid
+  orderId   String?    @db.Uuid
+  status    String     @default("active")
+  expiresAt DateTime
+  createdAt DateTime   @default(now())
+  slot      TimeSlot?  @relation(fields: [slotId], references: [id])
+  order     Order?     @relation(fields: [orderId], references: [id])
+
+  @@map("reservations")
+}
+
+model InventoryTransaction {
+  id              String         @id @default(uuid()) @db.Uuid
+  inventoryItemId String?        @db.Uuid
+  transactionType String
+  quantity        Int
+  referenceType   String?
+  referenceId     String?        @db.Uuid
+  warehouseId     String?        @db.Uuid
+  notes           String?
+  createdAt       DateTime       @default(now())
+  inventoryItem   InventoryItem? @relation(fields: [inventoryItemId], references: [id])
+  warehouse       Warehouse?     @relation(fields: [warehouseId], references: [id])
+
+  @@map("inventory_transactions")
+}
