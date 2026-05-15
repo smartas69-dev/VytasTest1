@@ -5,22 +5,24 @@
 
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { 
-  AppBar, 
-  Toolbar, 
-  Typography, 
-  Container, 
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Container,
   Box,
   Button,
   CssBaseline,
   ThemeProvider,
   createTheme,
 } from '@mui/material';
-import { 
+import {
   LocalShipping as TruckIcon,
   Dashboard as DashboardIcon,
   ShoppingCart as OrderIcon,
+  AdminPanelSettings as AdminIcon,
 } from '@mui/icons-material';
+import AdminPage from './pages/AdminPage';
 
 // Create theme
 const theme = createTheme({
@@ -53,6 +55,16 @@ const HomePage = () => (
         sx={{ mr: 2 }}
       >
         View Orders
+      </Button>
+      <Button
+        component={Link}
+        to="/admin"
+        variant="outlined"
+        size="large"
+        startIcon={<AdminIcon />}
+        sx={{ mr: 2 }}
+      >
+        Administration
       </Button>
       <Button
         component={Link}
@@ -119,6 +131,9 @@ function App() {
               <Button color="inherit" component={Link} to="/orders">
                 Orders
               </Button>
+              <Button color="inherit" component={Link} to="/admin">
+                Admin
+              </Button>
               <Button color="inherit" component={Link} to="/fleet">
                 Fleet
               </Button>
@@ -129,10 +144,11 @@ function App() {
           </AppBar>
 
           {/* Main Content */}
-          <Container component="main" sx={{ flex: 1, py: 4 }}>
+          <Container component="main" sx={{ flex: 1, py: 4 }} maxWidth={false}>
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/orders" element={<OrdersPage />} />
+              <Route path="/admin" element={<AdminPage />} />
               <Route path="/fleet" element={<FleetPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
             </Routes>
