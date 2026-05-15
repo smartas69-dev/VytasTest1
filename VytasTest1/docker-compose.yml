@@ -39,6 +39,8 @@ services:
     build: ./backend
     environment:
       DATABASE_URL: postgresql://admin:admin123@postgres:5432/lastmile_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       REDIS_URL: redis://redis:6379
       RABBITMQ_URL: amqp://admin:admin123@rabbitmq:5672
       PORT: 3000
